@@ -62,35 +62,39 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	@Override
 	public void updateV(){
 		double vtemp = 0.0;
+		double vsum = 0.0;
 		//delta est utilise pour detecter la convergence de l'algorithme
 		//lorsque l'on planifie jusqu'a convergence, on arrete les iterations lorsque
 		//delta < epsilon 
 		this.delta=0.0;
 		//*** VOTRE CODE
+		this.vmax = 0;
+		this.vmin = 0;
 		for (Etat etat : this.mdp.getEtatsAccessibles()) {
+			vtemp = 0.0;
 			for(Action action : this.mdp.getActionsPossibles(etat)) {
 				try {
-					Map mapEtats = this.mdp.getEtatTransitionProba(etat, action);
-					Iterator<Etat> etatIterator = mapEtats.keySet().iterator();
-					while(etatIterator.hasNext()){
-						Etat etatPossible = etatIterator.next();
-						double probaEtat = (double)mapEtats.get(etatPossible);
-						vtemp = Math.max(vtemp, probaEtat * (this.mdp.getRecompense(etat, action, etatPossible) + this.gamma * this.V.get(etatPossible)));
-						this.delta = Math.max(this.delta, Math.abs(vtemp - this.V.get(etat)));
+					Map<Etat, Double> transitionProba = mdp.getEtatTransitionProba(etat, action);
+					vsum = 0.0;
+					for (Map.Entry<Etat, Double> etatPossible : transitionProba.entrySet()) {
+						vsum += etatPossible.getValue() * (this.mdp.getRecompense(etat, action, etatPossible.getKey()) + this.gamma * this.V.get(etatPossible.getKey()));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				vtemp = Math.max(vtemp, vsum);
 			}
+			this.delta = Math.max(this.delta, Math.abs(vtemp - this.V.get(etat)));
 			V.put(etat, vtemp);
 
+
+			// mise a jour vmax et vmin pour affichage du gradient de couleur:
+			//vmax est la valeur  max de V  pour tout s
+			//vmin est la valeur min de V  pour tout s
+			this.vmax = Math.max(this.vmax, this.V.get(etat));
+			this.vmin = Math.min(this.vmin, this.V.get(etat));
 		}
-		
-		
-		// mise a jour vmax et vmin pour affichage du gradient de couleur:
-		//vmax est la valeur  max de V  pour tout s
-		//vmin est la valeur min de V  pour tout s
-		// ...
+
 		
 		//******************* laisser la notification a la fin de la methode	
 		this.notifyObs();
