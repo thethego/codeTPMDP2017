@@ -1,13 +1,8 @@
 package agent.planningagent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import util.HashMapUtil;
-
-import java.util.HashMap;
 
 import environnement.Action;
 import environnement.Etat;
@@ -66,11 +61,30 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	 */
 	@Override
 	public void updateV(){
+		double vtemp = 0.0;
 		//delta est utilise pour detecter la convergence de l'algorithme
 		//lorsque l'on planifie jusqu'a convergence, on arrete les iterations lorsque
 		//delta < epsilon 
 		this.delta=0.0;
 		//*** VOTRE CODE
+		for (Etat etat : this.mdp.getEtatsAccessibles()) {
+			for(Action action : this.mdp.getActionsPossibles(etat)) {
+				try {
+					Map mapEtats = this.mdp.getEtatTransitionProba(etat, action);
+					Iterator<Etat> etatIterator = mapEtats.keySet().iterator();
+					while(etatIterator.hasNext()){
+						Etat etatPossible = etatIterator.next();
+						double probaEtat = (double)mapEtats.get(etatPossible);
+						vtemp = Math.max(vtemp, probaEtat * (this.mdp.getRecompense(etat, action, etatPossible) + this.gamma * this.V.get(etatPossible)));
+						this.delta = Math.max(this.delta, Math.abs(vtemp - this.V.get(etat)));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			V.put(etat, vtemp);
+
+		}
 		
 		
 		// mise a jour vmax et vmin pour affichage du gradient de couleur:
