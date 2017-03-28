@@ -22,7 +22,7 @@ public class testValueIterCours {
 				//	GridworldMDP gmdp = new GridworldMDP(grid);
 					
 					
-					GridworldMDP gmdp = GridworldMDP.getBookGrid();
+					GridworldMDP gmdp = GridworldMDP.getDiscountGrid();
 					GridworldEnvironnement.setDISP(true);//affichage transitions
 					
 					GridworldEnvironnement g = new GridworldEnvironnement(gmdp);
