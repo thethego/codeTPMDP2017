@@ -1,8 +1,7 @@
 package agent.rlagent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javafx.util.Pair;
 import environnement.Action;
@@ -60,6 +59,14 @@ public class QLearningAgent extends RLAgent {
 		}
 		
 		//*** VOTRE CODE
+		Double max = getValeur(e);
+
+		for (Action action : this.getActionsLegales(e)) {
+			if(getQValeur(e, action) == max){
+				returnactions.add(action);
+			}
+		}
+
 		return returnactions;
 		
 		
@@ -68,14 +75,29 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public double getValeur(Etat e) {
 		//*** VOTRE CODE
-		return 0.0;
-		
+		Double val = 0.0;
+		HashMap<Action,Double> actions = this.qvaleurs.get(e);
+		if(actions != null){
+			val = actions.entrySet()
+					.stream()
+					.max((entry1, entry2) -> getQValeur(e, entry1.getKey()) > getQValeur(e, entry2.getKey()) ? 1 : -1)
+					.map(Map.Entry::getValue).orElse(0.0);
+		}
+		return val;
 	}
 
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		//*** VOTRE CODE
-		return 0;
+		double qVal = 0.0;
+		HashMap<Action,Double> actions = this.qvaleurs.get(e);
+		if(actions != null){
+			Double val = actions.get(a);
+			if(val != null){
+				qVal = val;
+			}
+		}
+		return qVal;
 	}
 	
 	
@@ -83,12 +105,22 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public void setQValeur(Etat e, Action a, double d) {
 		//*** VOTRE CODE
-		
-		
+		HashMap<Action,Double> actions = this.qvaleurs.get(e);
+		if(actions != null){
+			actions.put(a, d);
+		}
+		else{
+			HashMap<Action,Double> actionNew = new HashMap<>();
+			actionNew.put(a, d);
+			this.qvaleurs.put(e, actionNew);
+		}
+
 		// mise a jour vmax et vmin pour affichage du gradient de couleur:
 				//vmax est la valeur de max pour tout s de V
 				//vmin est la valeur de min pour tout s de V
 				// ...
+		vmax = Math.max(vmax, d);
+		vmin = Math.min(vmax, d);
 		
 		
 		this.notifyObs();
@@ -110,6 +142,8 @@ public class QLearningAgent extends RLAgent {
 			System.out.println("QL mise a jour etat "+e+" action "+a+" etat' "+esuivant+ " r "+reward);
 
 		//*** VOTRE CODE
+		Double val = (1-alpha) * getQValeur(e, a) + alpha * (reward + gamma * getValeur(esuivant));
+		setQValeur(e, a, val);
 	}
 
 	@Override
@@ -122,6 +156,7 @@ public class QLearningAgent extends RLAgent {
 	public void reset() {
 		super.reset();
 		//*** VOTRE CODE
+		qvaleurs.clear();
 		
 		this.episodeNb =0;
 		this.notifyObs();
