@@ -39,7 +39,7 @@ public class StrategyGreedy extends StrategyExploration{
 		}
 		else{
 			actions = agent.getPolitique(_e);
-			if(actions == null)
+			if(actions == null || actions.isEmpty())
 				actions = agent.getActionsLegales(_e);
 		}
 
