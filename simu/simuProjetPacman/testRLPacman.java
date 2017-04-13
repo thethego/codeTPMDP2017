@@ -49,7 +49,7 @@ public class testRLPacman extends Application{
 	/** pour afficher jeu de pacman en mode greedy */
 	static boolean DISPLAYPACMANGAME = true;
 	/** pour afficher courbe (somme des rec par episode) a la fin  */
-	static boolean DISPLAYCHART = false;
+	static boolean DISPLAYCHART = true;
 	/** //met un point tous les DELTA_DISPLAY epi */
 	static int DELTA_DISPLAY = 5;
 
@@ -166,10 +166,6 @@ public class testRLPacman extends Application{
 	 */
 	public static void main(String[] args) {
 		//testPacmanClassicRL.testCalculQValeur();
-		
-		testRLPacman.common();
-		testRLPacman.apprentissage();
-		 
 
 		  if (DISPLAYCHART){
 			  launch( args);//lance start, affichage du graph
@@ -185,6 +181,9 @@ public class testRLPacman extends Application{
 	}
 	
 	public void start1(Stage primaryStage){
+			testRLPacman.common();
+			testRLPacman.apprentissage();
+
 	        //Creates lineChart dans scene 
 			primaryStage.setTitle(this.getClass().getName());
 			//Creates a Scene for a specific root Node=lineChart with a specific size and fill.
